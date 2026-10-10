@@ -1288,3 +1288,11 @@ html {
     justify-self: start;
   }
 }
+
+/* header side padding, 20px tighter */
+@media (min-width: 901px) {
+  .lp-header {
+    padding-left: max(4px, calc((100% - 1160px) / 2 - 20px));
+    padding-right: max(4px, calc((100% - 1160px) / 2 - 20px));
+  }
+}
