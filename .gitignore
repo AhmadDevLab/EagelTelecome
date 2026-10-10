@@ -1,2 +1,15 @@
 .DS_Store
 backend/Archive.zip
+
+# secrets / local artifacts - never commit
+.env
+.env.*
+!.env.example
+!frontend/.env.production
+*.pem
+id_ed25519*
+id_rsa*
+deploy_key*
+*.sql
+*.sql.gz
+*.sqlite

@@ -1,0 +1,24 @@
+# Managed by .github/workflows/deploy.yml - edit deploy/htaccess in the repo, not on the server.
+Options -MultiViews -Indexes
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Pass the Authorization header through to PHP (admin bearer token)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Laravel API + health check
+RewriteRule ^api(/.*)?$ backend.php [L]
+RewriteRule ^up$ backend.php [L]
+
+# Never serve dotfiles (except .well-known for SSL)
+RewriteRule ^\.(?!well-known) - [F,L]
+
+# React SPA fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

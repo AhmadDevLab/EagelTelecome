@@ -1,0 +1,160 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://etelquotes.com
+  REMOTE_BASE: /home/${{ secrets.SSH_USER }}/domains/etelquotes.com
+  # Optional repo variable (Settings > Variables). Use e.g. /opt/alt/php83/usr/bin/php
+  # if the default `php` on the server is older than 8.3.
+  PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- build ----------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+          extensions: mbstring, pdo_mysql, bcmath, ctype, fileinfo, json, openssl, tokenizer, xml
+
+      - name: Install backend dependencies (no dev)
+        working-directory: backend
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Stage public_html
+        run: |
+          mkdir -p stage/public_html
+          cp -R frontend/dist/. stage/public_html/
+          cp deploy/htaccess stage/public_html/.htaccess
+          cp deploy/backend.php stage/public_html/backend.php
+
+      # ---------- ssh ----------
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          if [ -n "$SSH_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" > ~/.ssh/known_hosts
+          fi
+          cat > ~/.ssh/config <<CFG
+          Host hostinger
+            HostName $SSH_HOST
+            Port $SSH_PORT
+            User ${{ secrets.SSH_USER }}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            ServerAliveInterval 30
+          CFG
+          chmod 600 ~/.ssh/config
+
+      # ---------- preflight + backup (aborts before touching the live site) ----------
+      - name: Preflight and backup
+        run: |
+          ssh hostinger "BASE='$REMOTE_BASE' PHP='$PHP_BIN' bash -s" <<'REMOTE'
+          set -euo pipefail
+          [ -d "$BASE/public_html" ] || { echo "::error::$BASE/public_html not found"; exit 1; }
+
+          if ! $PHP -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
+            echo "::error::Server CLI PHP is $($PHP -v | head -1). Need 8.3+. Set the PHP_BIN repo variable."
+            exit 1
+          fi
+
+          B="$HOME/backups/etelquotes"; TS=$(date +%Y%m%d-%H%M%S)
+          mkdir -p "$B"
+
+          tar -czf "$B/$TS-public_html.tar.gz" -C "$BASE" public_html
+          if [ -d "$BASE/laravel" ]; then
+            tar -czf "$B/$TS-laravel.tar.gz" --exclude='laravel/storage' -C "$BASE" laravel
+          fi
+
+          # database dump (skipped on very first deploy, when no .env exists yet)
+          if [ -f "$BASE/laravel/.env" ]; then
+            envval() { grep -E "^$1=" "$BASE/laravel/.env" | head -1 | cut -d= -f2- | sed -e 's/^["'"'"']//' -e 's/["'"'"']$//'; }
+            MYSQL_PWD="$(envval DB_PASSWORD)" mysqldump --no-tablespaces --single-transaction \
+              -h "$(envval DB_HOST)" -P "$(envval DB_PORT | grep . || echo 3306)" -u "$(envval DB_USERNAME)" "$(envval DB_DATABASE)" \
+              | gzip > "$B/$TS-db.sql.gz"
+            [ -s "$B/$TS-db.sql.gz" ] || { echo "::error::database backup is empty"; exit 1; }
+          else
+            echo "::error::$BASE/laravel/.env is missing. Create it once on the server (see DEPLOY.md), then re-run."
+            exit 1
+          fi
+
+          # keep the 5 newest backups of each kind
+          for kind in public_html.tar.gz laravel.tar.gz db.sql.gz; do
+            ls -1t "$B"/*-"$kind" 2>/dev/null | tail -n +6 | xargs -r rm -f
+          done
+          echo "Backup $TS written to $B"
+          REMOTE
+
+      # ---------- deploy ----------
+      - name: Upload backend (outside public_html)
+        run: |
+          ssh hostinger "mkdir -p '$REMOTE_BASE/laravel' && cd '$REMOTE_BASE/laravel' && mkdir -p bootstrap/cache storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs"
+          rsync -az --delete \
+            --exclude '.env' --exclude '.env.*' --exclude 'storage/' \
+            --exclude 'node_modules/' --exclude 'tests/' --exclude '.git*' \
+            --exclude 'database/*.sqlite' --exclude '*.zip' --exclude '.phpunit*' \
+            --exclude 'bootstrap/cache/*.php' \
+            backend/ hostinger:"$REMOTE_BASE/laravel/"
+
+      - name: Upload frontend + routing to public_html
+        run: |
+          rsync -az --delete \
+            --exclude '.well-known/' --exclude 'cgi-bin/' --exclude '.user.ini' \
+            stage/public_html/ hostinger:"$REMOTE_BASE/public_html/"
+          ssh hostinger 'cat > "$HOME/backups/etelquotes/rollback.sh"' < deploy/rollback.sh
+
+      - name: Migrate and cache
+        run: |
+          ssh hostinger "cd '$REMOTE_BASE/laravel' && $PHP_BIN artisan migrate --force && $PHP_BIN artisan config:cache && $PHP_BIN artisan route:cache"
+
+      # ---------- verify ----------
+      - name: Smoke test
+        run: |
+          set -e
+          sleep 5
+          code() { curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$1"; }
+          [ "$(code $SITE_URL/)" = 200 ]                        || { echo "::error::/ is not 200"; exit 1; }
+          [ "$(code $SITE_URL/admin)" = 200 ]                   || { echo "::error::SPA route /admin is not 200"; exit 1; }
+          [ "$(code $SITE_URL/up)" = 200 ]                      || { echo "::error::Laravel /up is not 200"; exit 1; }
+          [ "$(code $SITE_URL/api/admin/submissions)" = 401 ]   || { echo "::error::API did not return 401 JSON"; exit 1; }
+          echo "Smoke test passed"
+
+      - name: Remind how to roll back
+        if: failure()
+        run: |
+          echo "::warning::Deploy failed. To roll back, SSH in and run: bash ~/backups/etelquotes/rollback.sh"
