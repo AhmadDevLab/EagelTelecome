@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import LeadForm from "../components/LeadForm";
+import { useGlow, useReveal, useScrolled } from "../hooks/useMotion";
 import "../landing.css";
 
 const BRAND = "EtelQuotes";
@@ -77,10 +78,14 @@ const faqs = [
 
 export default function Landing() {
   const [open, setOpen] = useState(0);
+  const heroRef = useRef(null);
+  const scrolled = useScrolled();
+  useReveal();
+  useGlow(heroRef);
 
   return (
     <div className="lp">
-      <header className="lp-header">
+      <header className={`lp-header ${scrolled ? "is-scrolled" : ""}`}>
         <a href="#top" className="lp-brand">
           <img src="/logo.jpeg" alt="Eagle Telecommunications" />
           <span>
@@ -99,8 +104,8 @@ export default function Landing() {
       </header>
 
       <main id="top">
-        <section className="lp-hero">
-          <div className="lp-hero-copy">
+        <section className="lp-hero" ref={heroRef}>
+          <div className="lp-hero-copy lp-intro">
             <p className="lp-eyebrow">Telecom quotes, delivered live</p>
             <h1>
               The right phone, internet and TV plan, <em>on a live call.</em>
@@ -116,17 +121,24 @@ export default function Landing() {
               <span>Local availability</span>
             </div>
           </div>
-          <LeadForm />
+          <div className="lp-intro lp-intro-2">
+            <LeadForm />
+          </div>
         </section>
 
         <section id="solutions" className="lp-section">
-          <h2>One place for every telecom service</h2>
-          <p className="lp-sub">
+          <h2 data-reveal>One place for every telecom service</h2>
+          <p className="lp-sub" data-reveal data-delay="1">
             Whatever you need connected, we route you to the right specialist.
           </p>
           <div className="lp-grid">
-            {solutions.map((s) => (
-              <article key={s.title} className="lp-tile">
+            {solutions.map((s, i) => (
+              <article
+                key={s.title}
+                className="lp-tile"
+                data-reveal
+                style={{ "--i": i }}
+              >
                 <h3>{s.title}</h3>
                 <p>{s.text}</p>
                 <a href="#quote">Get a quote &rarr;</a>
@@ -136,10 +148,10 @@ export default function Landing() {
         </section>
 
         <section id="how" className="lp-section lp-alt">
-          <h2>From request to connected in five steps</h2>
+          <h2 data-reveal>From request to connected in five steps</h2>
           <ol className="lp-steps">
             {steps.map(([title, text], i) => (
-              <li key={title}>
+              <li key={title} data-reveal style={{ "--i": i }}>
                 <span className="lp-step-num">{i + 1}</span>
                 <h3>{title}</h3>
                 <p>{text}</p>
@@ -149,8 +161,8 @@ export default function Landing() {
         </section>
 
         <section id="why" className="lp-section">
-          <h2>Built for people who want answers, not forms</h2>
-          <div className="lp-table-wrap">
+          <h2 data-reveal>Built for people who want answers, not forms</h2>
+          <div className="lp-table-wrap" data-reveal data-delay="1">
             <table className="lp-table">
               <thead>
                 <tr>
@@ -173,8 +185,8 @@ export default function Landing() {
         </section>
 
         <section id="faq" className="lp-section lp-alt">
-          <h2>Answers before the call</h2>
-          <div className="lp-faq">
+          <h2 data-reveal>Answers before the call</h2>
+          <div className="lp-faq" data-reveal data-delay="1">
             {faqs.map(([q, a], i) => (
               <div key={q} className={`lp-faq-item ${open === i ? "open" : ""}`}>
                 <button
@@ -185,13 +197,15 @@ export default function Landing() {
                   {q}
                   <span aria-hidden="true">{open === i ? "−" : "+"}</span>
                 </button>
-                {open === i && <p>{a}</p>}
+                <div className="lp-faq-body">
+                  <p>{a}</p>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="lp-cta">
+        <section className="lp-cta" data-reveal>
           <h2>Ready to find a better plan?</h2>
           <p>Request your free quote and speak with a specialist today.</p>
           <a href="#quote" className="lp-btn lp-btn-gold">

@@ -597,3 +597,230 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- motion ---- */
+html {
+  scroll-behavior: smooth;
+}
+
+.lp section[id],
+.lp main[id] {
+  scroll-margin-top: 72px;
+}
+
+.lp-header {
+  transition: padding 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.lp-header.is-scrolled {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  box-shadow: 0 10px 30px -18px rgba(212, 166, 42, 0.45);
+}
+
+.lp-brand img {
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.lp-brand:hover img {
+  transform: rotate(360deg);
+}
+
+.lp-nav a {
+  position: relative;
+}
+
+.lp-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.lp-nav a:hover::after {
+  transform: scaleX(1);
+}
+
+/* hero entrance + pointer glow */
+.lp-hero {
+  position: relative;
+  --mx: 30%;
+  --my: 20%;
+  background:
+    radial-gradient(420px circle at var(--mx) var(--my), rgba(212, 166, 42, 0.14), transparent 70%),
+    radial-gradient(600px 300px at 20% 0%, rgba(212, 166, 42, 0.12), transparent);
+}
+
+.lp-intro {
+  animation: lp-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.lp-intro-2 {
+  animation-delay: 0.15s;
+}
+
+.lp-badges span {
+  animation: lp-pop 0.5s ease both;
+}
+
+.lp-badges span:nth-child(1) { animation-delay: 0.5s; }
+.lp-badges span:nth-child(2) { animation-delay: 0.62s; }
+.lp-badges span:nth-child(3) { animation-delay: 0.74s; }
+
+.lp-hero h1 em {
+  background-size: 200% 100%;
+  animation: lp-shimmer 4s linear infinite;
+  background-image: linear-gradient(
+    90deg,
+    var(--gold) 0%,
+    var(--gold-hi) 40%,
+    var(--gold) 80%
+  );
+}
+
+.lp-btn-gold {
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-btn-gold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+}
+
+.lp-btn-gold:hover::after {
+  transform: translateX(120%);
+  transition: transform 0.7s ease;
+}
+
+/* scroll reveal */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+[data-reveal][data-delay="1"] {
+  transition-delay: 0.12s;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* hover lift on tiles needs its own transition once revealed */
+.lp-tile[data-reveal].is-visible {
+  transition: border-color 0.15s, transform 0.2s ease, box-shadow 0.2s ease;
+  transition-delay: 0s;
+}
+
+.lp-tile[data-reveal].is-visible:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -22px rgba(212, 166, 42, 0.5);
+}
+
+/* steps: line draws in */
+.lp-steps li {
+  position: relative;
+  border-top: none;
+}
+
+.lp-steps li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold-lo);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s ease 0.2s;
+}
+
+.lp-steps li.is-visible::before {
+  transform: scaleX(1);
+}
+
+/* faq accordion */
+.lp-faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.lp-faq-body > p {
+  overflow: hidden;
+  margin: 0;
+}
+
+.lp-faq-item.open .lp-faq-body {
+  grid-template-rows: 1fr;
+}
+
+.lp-faq-item.open .lp-faq-body > p {
+  padding-bottom: 18px;
+}
+
+.lp-faq-item button span {
+  transition: transform 0.3s ease;
+}
+
+.lp-faq-item.open button span {
+  transform: rotate(180deg);
+}
+
+/* form success pop */
+.lp-success {
+  animation: lp-pop 0.45s ease both;
+}
+
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes lp-pop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes lp-shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .lp *,
+  .lp *::before,
+  .lp *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .lp-steps li::before {
+    transform: scaleX(1);
+  }
+}
