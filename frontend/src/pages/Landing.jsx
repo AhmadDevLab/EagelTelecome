@@ -52,7 +52,7 @@ const marquee = [
   "New Service",
 ];
 
-// Social-proof figures. Keep these accurate and update as they change.
+// Social-proof figures update as they change.
 const stats = [
   { value: 2000, suffix: "+", label: "Happy clients" },
   { value: 0, prefix: "$", label: "Cost to request a quote" },
@@ -77,21 +77,40 @@ const values = [
   },
 ];
 
-const trust = ["Free quotes", "Live specialists", "Local plans", "No obligation"];
+const trust = [
+  "Free quotes",
+  "Live specialists",
+  "Local plans",
+  "No obligation",
+];
 
 const steps = [
   ["Tell us where you are", "Share your ZIP code and the services you need."],
-  ["We find local options", "We check which providers and plans serve your area."],
-  ["Quick qualification", "A specialist confirms your needs, budget and timing."],
+  [
+    "We find local options",
+    "We check which providers and plans serve your area.",
+  ],
+  [
+    "Quick qualification",
+    "A specialist confirms your needs, budget and timing.",
+  ],
   ["Live call", "You speak with a licensed representative, no waiting."],
   ["Get connected", "Pick a plan and get set up, usually within days."],
 ];
 
 const comparison = [
-  ["Consumer-requested quotes", "Yes, every request comes from you", "Often purchased or recycled lists"],
+  [
+    "Consumer-requested quotes",
+    "Yes, every request comes from you",
+    "Often purchased or recycled lists",
+  ],
   ["Speed", "Live call within minutes", "Hours or days"],
   ["Quality checks", "Verified before every transfer", "Limited"],
-  ["Transparency", "Clear plan and pricing details", "Fine print and surprises"],
+  [
+    "Transparency",
+    "Clear plan and pricing details",
+    "Fine print and surprises",
+  ],
   ["Flexibility", "Compare many providers", "One provider's offer"],
 ];
 
@@ -140,7 +159,10 @@ export default function Landing() {
             Etel<b>Quotes</b>
           </span>
         </a>
-        <nav className={`lp-nav ${menu ? "open" : ""}`} onClick={() => setMenu(false)}>
+        <nav
+          className={`lp-nav ${menu ? "open" : ""}`}
+          onClick={() => setMenu(false)}
+        >
           <a href="#solutions">Solutions</a>
           <a href="#how">How it works</a>
           <a href="#why">Why us</a>
@@ -208,7 +230,9 @@ export default function Landing() {
         </div>
 
         <section id="solutions" className="lp-section">
-          <p className="lp-kicker" data-reveal>Solutions</p>
+          <p className="lp-kicker" data-reveal>
+            Solutions
+          </p>
           <h2 data-reveal>One place for every telecom service</h2>
           <p className="lp-sub" data-reveal data-delay="1">
             Whatever you need connected, we route you to the right specialist.
@@ -233,7 +257,9 @@ export default function Landing() {
         </section>
 
         <section id="how" className="lp-section lp-alt">
-          <p className="lp-kicker" data-reveal>How it works</p>
+          <p className="lp-kicker" data-reveal>
+            How it works
+          </p>
           <h2 data-reveal>From request to connected in five steps</h2>
           <ol className="lp-steps">
             {steps.map(([title, text], i) => (
@@ -271,11 +297,18 @@ export default function Landing() {
         </section>
 
         <section id="why" className="lp-section">
-          <p className="lp-kicker" data-reveal>Why {BRAND}</p>
+          <p className="lp-kicker" data-reveal>
+            Why {BRAND}
+          </p>
           <h2 data-reveal>Built for people who want answers, not forms</h2>
           <div className="lp-values">
             {values.map((v, i) => (
-              <div key={v.title} className="lp-value" data-reveal style={{ "--i": i }}>
+              <div
+                key={v.title}
+                className="lp-value"
+                data-reveal
+                style={{ "--i": i }}
+              >
                 <span className="lp-icon">
                   <Icon name={v.icon} />
                 </span>
@@ -307,11 +340,16 @@ export default function Landing() {
         </section>
 
         <section id="faq" className="lp-section lp-alt">
-          <p className="lp-kicker" data-reveal>FAQ</p>
+          <p className="lp-kicker" data-reveal>
+            FAQ
+          </p>
           <h2 data-reveal>Answers before the call</h2>
           <div className="lp-faq" data-reveal data-delay="1">
             {faqs.map(([q, a], i) => (
-              <div key={q} className={`lp-faq-item ${open === i ? "open" : ""}`}>
+              <div
+                key={q}
+                className={`lp-faq-item ${open === i ? "open" : ""}`}
+              >
                 <button
                   type="button"
                   aria-expanded={open === i}
@@ -346,6 +384,16 @@ export default function Landing() {
         Get my free quote <Icon name="arrow" size={18} />
       </a>
 
+      <button
+        type="button"
+        className={`lp-to-top ${pastHero ? "show" : ""}`}
+        aria-label="Back to top"
+        tabIndex={pastHero ? 0 : -1}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
+        <Icon name="arrow" size={20} />
+      </button>
+
       <footer className="lp-footer">
         <div>
           <div className="lp-brand">
@@ -354,9 +402,7 @@ export default function Landing() {
               Etel<b>Quotes</b>
             </span>
           </div>
-          <p>
-            A service of Eagle Telecommunications. Calls that close deals.
-          </p>
+          <p>A service of Eagle Telecommunications. Calls that close deals.</p>
         </div>
         <div>
           <h4>Solutions</h4>

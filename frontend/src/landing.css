@@ -1364,3 +1364,59 @@ html {
     padding-top: 8px;
   }
 }
+
+/* ---- back to top ---- */
+.lp-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 15;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gold-lo);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-hi), var(--gold) 55%, var(--gold-lo));
+  color: #1a1405;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px rgba(212, 166, 42, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, filter 0.15s;
+}
+
+.lp-to-top svg {
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.lp-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.lp-to-top:hover {
+  filter: brightness(1.1);
+}
+
+.lp-to-top:hover svg {
+  transform: rotate(-90deg) translateX(3px);
+}
+
+.lp-to-top:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  /* sit above the sticky mobile CTA */
+  .lp-to-top {
+    right: 16px;
+    bottom: 84px;
+    width: 44px;
+    height: 44px;
+  }
+}
