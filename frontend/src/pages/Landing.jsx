@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import Icon from "../components/Icon";
 import LeadForm from "../components/LeadForm";
 import { useGlow, useReveal, useScrolled } from "../hooks/useMotion";
 import "../landing.css";
@@ -9,29 +10,66 @@ const BRAND = "EtelQuotes";
 const solutions = [
   {
     title: "Home Internet & Fiber",
+    icon: "wifi",
     text: "Compare fiber, cable and 5G home plans available at your address.",
   },
   {
     title: "Mobile Plans",
+    icon: "mobile",
     text: "Unlimited, family and prepaid plans from the major carriers.",
   },
   {
     title: "Business Phone & VoIP",
+    icon: "phone",
     text: "Hosted PBX, SIP trunking and multi-line systems for growing teams.",
   },
   {
     title: "TV & Streaming",
+    icon: "tv",
     text: "Cable, satellite and streaming bundles matched to what you watch.",
   },
   {
     title: "Bundles & Savings",
+    icon: "layers",
     text: "Combine internet, mobile and TV into one plan and one bill.",
   },
   {
     title: "Relocation & New Service",
+    icon: "home",
     text: "Moving soon? Line up service before you arrive.",
   },
 ];
+
+const marquee = [
+  "Fiber Internet",
+  "5G Home",
+  "Unlimited Mobile",
+  "Business VoIP",
+  "SIP Trunking",
+  "Streaming TV",
+  "Bundles",
+  "New Service",
+];
+
+const values = [
+  {
+    icon: "bolt",
+    title: "Live, not lists",
+    text: "You get a real conversation with a specialist, not a stack of emails.",
+  },
+  {
+    icon: "pin",
+    title: "Local availability",
+    text: "Quotes reflect what providers actually offer at your ZIP code.",
+  },
+  {
+    icon: "shield",
+    title: "No obligation",
+    text: "Free to request, free to compare, and you decide what happens next.",
+  },
+];
+
+const trust = ["Free quotes", "Live specialists", "Local plans", "No obligation"];
 
 const steps = [
   ["Tell us where you are", "Share your ZIP code and the services you need."],
@@ -79,7 +117,9 @@ const faqs = [
 export default function Landing() {
   const [open, setOpen] = useState(0);
   const heroRef = useRef(null);
+  const [menu, setMenu] = useState(false);
   const scrolled = useScrolled();
+  const pastHero = useScrolled(640);
   useReveal();
   useGlow(heroRef);
 
@@ -92,21 +132,36 @@ export default function Landing() {
             Etel<b>Quotes</b>
           </span>
         </a>
-        <nav className="lp-nav">
+        <nav className={`lp-nav ${menu ? "open" : ""}`} onClick={() => setMenu(false)}>
           <a href="#solutions">Solutions</a>
           <a href="#how">How it works</a>
           <a href="#why">Why us</a>
           <a href="#faq">FAQ</a>
         </nav>
-        <a href="#quote" className="lp-btn lp-btn-gold lp-btn-sm">
+        <a href="#quote" className="lp-btn lp-btn-gold lp-btn-sm lp-header-cta">
           Get a quote
         </a>
+        <button
+          type="button"
+          className={`lp-burger ${menu ? "open" : ""}`}
+          aria-label="Toggle menu"
+          aria-expanded={menu}
+          onClick={() => setMenu((m) => !m)}
+        >
+          <span />
+          <span />
+        </button>
       </header>
 
       <main id="top">
         <section className="lp-hero" ref={heroRef}>
+          <div className="lp-orb" aria-hidden="true">
+            <img src="/logo.jpeg" alt="" />
+          </div>
           <div className="lp-hero-copy lp-intro">
-            <p className="lp-eyebrow">Telecom quotes, delivered live</p>
+            <p className="lp-eyebrow">
+              <span className="lp-dot" /> Telecom quotes, delivered live
+            </p>
             <h1>
               The right phone, internet and TV plan, <em>on a live call.</em>
             </h1>
@@ -115,18 +170,37 @@ export default function Landing() {
               plans available at your address. Calls that close deals, for
               customers who are ready to switch.
             </p>
-            <div className="lp-badges">
-              <span>Free quotes</span>
-              <span>Real-time call delivery</span>
-              <span>Local availability</span>
+            <div className="lp-hero-actions">
+              <a href="#quote" className="lp-btn lp-btn-gold">
+                Get my free quote <Icon name="arrow" size={18} />
+              </a>
+              <a href="#how" className="lp-btn lp-btn-outline">
+                See how it works
+              </a>
             </div>
+            <ul className="lp-trust">
+              {trust.map((t) => (
+                <li key={t}>
+                  <Icon name="check" size={16} /> {t}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="lp-intro lp-intro-2">
             <LeadForm />
           </div>
         </section>
 
+        <div className="lp-marquee" aria-hidden="true">
+          <div className="lp-marquee-track">
+            {[...marquee, ...marquee].map((m, i) => (
+              <span key={i}>{m}</span>
+            ))}
+          </div>
+        </div>
+
         <section id="solutions" className="lp-section">
+          <p className="lp-kicker" data-reveal>Solutions</p>
           <h2 data-reveal>One place for every telecom service</h2>
           <p className="lp-sub" data-reveal data-delay="1">
             Whatever you need connected, we route you to the right specialist.
@@ -139,6 +213,9 @@ export default function Landing() {
                 data-reveal
                 style={{ "--i": i }}
               >
+                <span className="lp-icon">
+                  <Icon name={s.icon} />
+                </span>
                 <h3>{s.title}</h3>
                 <p>{s.text}</p>
                 <a href="#quote">Get a quote &rarr;</a>
@@ -148,6 +225,7 @@ export default function Landing() {
         </section>
 
         <section id="how" className="lp-section lp-alt">
+          <p className="lp-kicker" data-reveal>How it works</p>
           <h2 data-reveal>From request to connected in five steps</h2>
           <ol className="lp-steps">
             {steps.map(([title, text], i) => (
@@ -161,7 +239,19 @@ export default function Landing() {
         </section>
 
         <section id="why" className="lp-section">
+          <p className="lp-kicker" data-reveal>Why {BRAND}</p>
           <h2 data-reveal>Built for people who want answers, not forms</h2>
+          <div className="lp-values">
+            {values.map((v, i) => (
+              <div key={v.title} className="lp-value" data-reveal style={{ "--i": i }}>
+                <span className="lp-icon">
+                  <Icon name={v.icon} />
+                </span>
+                <h3>{v.title}</h3>
+                <p>{v.text}</p>
+              </div>
+            ))}
+          </div>
           <div className="lp-table-wrap" data-reveal data-delay="1">
             <table className="lp-table">
               <thead>
@@ -185,6 +275,7 @@ export default function Landing() {
         </section>
 
         <section id="faq" className="lp-section lp-alt">
+          <p className="lp-kicker" data-reveal>FAQ</p>
           <h2 data-reveal>Answers before the call</h2>
           <div className="lp-faq" data-reveal data-delay="1">
             {faqs.map(([q, a], i) => (
@@ -213,6 +304,15 @@ export default function Landing() {
           </a>
         </section>
       </main>
+
+      <a
+        href="#quote"
+        className={`lp-sticky-cta ${pastHero ? "show" : ""}`}
+        aria-hidden={!pastHero}
+        tabIndex={pastHero ? 0 : -1}
+      >
+        Get my free quote <Icon name="arrow" size={18} />
+      </a>
 
       <footer className="lp-footer">
         <div>
