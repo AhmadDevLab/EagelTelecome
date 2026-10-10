@@ -58,7 +58,7 @@ Both dev servers must run simultaneously for the app to work end-to-end (fronten
 
 ### Frontend structure
 
-- `App.jsx` — two routes: `/` → `PublicForm` (the lead form), `/admin` → `AdminPage` (login gate + submissions table), everything else redirects to `/`.
+- `App.jsx` — two routes: `/` → `Landing` (EtelQuotes lander; lead form lives in `components/LeadForm.jsx`, styles in `landing.css`), `/admin` → `AdminPage` (login gate + submissions table), everything else redirects to `/`.
 - `lib/api.js` — shared axios instance (`VITE_API_BASE_URL` env) and `authHeaders()` helper reading the admin token from `localStorage` (`eagle_admin_token`).
 - `lib/email.js` — client-side mirror of the backend's fake-email format, used only for the live preview field.
 - No component library/design system — plain CSS in `src/index.css` with BEM-ish utility classes (`.card`, `.badge`, `.mono`, table-specific classes like `.submissions`, `.form-id-cell`).
