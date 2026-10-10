@@ -1262,3 +1262,29 @@ html {
     margin: 0;
   }
 }
+
+/* ---- nav spacing ---- */
+.lp-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.lp {
+  padding-top: 67px;
+}
+
+@media (min-width: 901px) {
+  .lp-header {
+    gap: 56px;
+  }
+
+  .lp-header .lp-nav {
+    gap: 44px;
+  }
+
+  .lp-header .lp-brand {
+    justify-self: start;
+  }
+}
