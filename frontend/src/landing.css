@@ -1303,6 +1303,7 @@ html {
   background:
     radial-gradient(500px 160px at 50% 50%, rgba(212, 166, 42, 0.12), transparent),
     var(--black);
+  border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
 

@@ -207,30 +207,6 @@ export default function Landing() {
           </div>
         </div>
 
-        <section className="lp-stats" aria-label="Our numbers">
-          <div className="lp-stats-inner">
-            {stats.map((st, i) => (
-              <div
-                key={st.label}
-                className="lp-stat"
-                data-reveal
-                style={{ "--i": i }}
-              >
-                <strong>
-                  {st.text ?? (
-                    <CountUp
-                      value={st.value}
-                      prefix={st.prefix}
-                      suffix={st.suffix}
-                    />
-                  )}
-                </strong>
-                <span>{st.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section id="solutions" className="lp-section">
           <p className="lp-kicker" data-reveal>Solutions</p>
           <h2 data-reveal>One place for every telecom service</h2>
@@ -268,6 +244,30 @@ export default function Landing() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="lp-stats" aria-label="Our numbers">
+          <div className="lp-stats-inner">
+            {stats.map((st, i) => (
+              <div
+                key={st.label}
+                className="lp-stat"
+                data-reveal
+                style={{ "--i": i }}
+              >
+                <strong>
+                  {st.text ?? (
+                    <CountUp
+                      value={st.value}
+                      prefix={st.prefix}
+                      suffix={st.suffix}
+                    />
+                  )}
+                </strong>
+                <span>{st.label}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section id="why" className="lp-section">
