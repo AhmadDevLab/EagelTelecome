@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import CountUp from "../components/CountUp";
 import Icon from "../components/Icon";
 import LeadForm from "../components/LeadForm";
 import { useGlow, useReveal, useScrolled } from "../hooks/useMotion";
@@ -49,6 +50,13 @@ const marquee = [
   "Streaming TV",
   "Bundles",
   "New Service",
+];
+
+// Social-proof figures. Keep these accurate and update as they change.
+const stats = [
+  { value: 2000, suffix: "+", label: "Happy clients" },
+  { value: 0, prefix: "$", label: "Cost to request a quote" },
+  { text: "Live", label: "Specialists on every call" },
 ];
 
 const values = [
@@ -198,6 +206,30 @@ export default function Landing() {
             ))}
           </div>
         </div>
+
+        <section className="lp-stats" aria-label="Our numbers">
+          <div className="lp-stats-inner">
+            {stats.map((st, i) => (
+              <div
+                key={st.label}
+                className="lp-stat"
+                data-reveal
+                style={{ "--i": i }}
+              >
+                <strong>
+                  {st.text ?? (
+                    <CountUp
+                      value={st.value}
+                      prefix={st.prefix}
+                      suffix={st.suffix}
+                    />
+                  )}
+                </strong>
+                <span>{st.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section id="solutions" className="lp-section">
           <p className="lp-kicker" data-reveal>Solutions</p>
