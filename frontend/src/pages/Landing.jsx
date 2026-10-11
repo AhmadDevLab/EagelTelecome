@@ -54,7 +54,7 @@ const marquee = [
 
 // Social-proof figures update as they change.
 const stats = [
-  { value: 4000, suffix: "+", label: "Happy clients" },
+  { value: 3756, suffix: "+", label: "Happy clients" },
   { value: 0, prefix: "$", label: "Cost to request a quote" },
   { text: "Live", label: "Specialists on every call" },
 ];
@@ -162,6 +162,26 @@ export default function Landing() {
   const [menu, setMenu] = useState(false);
   const scrolled = useScrolled();
   const pastHero = useScrolled(640);
+
+  // Any "#quote" link scrolls to the form and puts the cursor in First name.
+  useEffect(() => {
+    const onClick = (e) => {
+      const link = e.target.closest?.('a[href="#quote"]');
+      if (!link) return;
+      e.preventDefault();
+      const form = document.getElementById("quote");
+      if (!form) return;
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+      // preventScroll so focusing doesn't interrupt the smooth scroll.
+      setTimeout(
+        () =>
+          document.getElementById("first_name")?.focus({ preventScroll: true }),
+        400,
+      );
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
   useReveal();
   useGlow(heroRef);
 
@@ -200,9 +220,11 @@ export default function Landing() {
 
       <main id="top">
         <section className="lp-hero" ref={heroRef}>
+          {/* Rotating eagle logo background (disabled)
           <div className="lp-orb" aria-hidden="true">
             <img src="/logo.jpeg" alt="" />
           </div>
+          */}
           <div className="lp-hero-copy lp-intro">
             <p className="lp-eyebrow">
               <span className="lp-dot" /> Telecom quotes, delivered live
