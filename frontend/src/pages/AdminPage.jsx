@@ -1,10 +1,26 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api, { authHeaders } from '../lib/api'
+import { US_STATES } from '../lib/states'
+import '../admin.css'
 
 const TOKEN_KEY = 'eagle_admin_token'
 
-function CopyButton({ value }) {
+const EMPTY_FILTERS = {
+  q: '',
+  state: '',
+  consent: '',
+  has_cert: '',
+  from: '',
+  to: '',
+}
+
+// "https://cert.trustedform.com/<id>" -> "<id>"
+function certId(url) {
+  return url.split('?')[0].replace(/\/+$/, '').split('/').pop()
+}
+
+function CopyButton({ value, label = 'Copy' }) {
   const [copied, setCopied] = useState(false)
 
   async function handleCopy(e) {
@@ -28,10 +44,10 @@ function CopyButton({ value }) {
   return (
     <button
       type="button"
-      className="copy-btn"
+      className="ad-copy"
       onClick={handleCopy}
-      title={copied ? 'Copied!' : 'Copy'}
-      aria-label="Copy form ID"
+      title={copied ? 'Copied!' : label}
+      aria-label={label}
     >
       {copied ? (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -61,29 +77,48 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="page">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark">ET</span>
-          Eagle Telecom
+    <div className="ad">
+      <header className="ad-header">
+        <Link to="/" className="ad-brand">
+          <img src="/logo.jpeg" alt="Eagle Telecommunications" />
+          <span>
+            Etel<b>Quotes</b>
+          </span>
+        </Link>
+        <span className="ad-tag">Admin</span>
+        <div className="ad-header-actions">
+          <Link to="/" className="ad-link">
+            Back to site
+          </Link>
+          {token && <LogoutButton onLogout={handleLogout} />}
         </div>
-        <span className="topbar-tag">Admin</span>
       </header>
 
-      <main className="content">
+      <main className="ad-main">
         {token ? (
-          <Dashboard onUnauthorized={handleLogout} onLogout={handleLogout} />
+          <Dashboard onUnauthorized={handleLogout} />
         ) : (
           <AdminLogin onSuccess={handleLogin} />
         )}
       </main>
-
-      <div className="footer-note">
-        <Link to="/" style={{ color: 'inherit' }}>
-          Back to form
-        </Link>
-      </div>
     </div>
+  )
+}
+
+function LogoutButton({ onLogout }) {
+  async function handleLogout() {
+    try {
+      await api.post('/admin/logout', {}, { headers: authHeaders() })
+    } catch {
+      // ignore network errors on logout
+    }
+    onLogout()
+  }
+
+  return (
+    <button type="button" className="ad-btn ad-btn-ghost ad-btn-sm" onClick={handleLogout}>
+      Log out
+    </button>
   )
 }
 
@@ -107,13 +142,13 @@ function AdminLogin({ onSuccess }) {
   }
 
   return (
-    <form className="card admin-login-card" onSubmit={handleSubmit}>
-      <h2 className="form-title">Admin sign in</h2>
-      <p className="form-subtitle">Enter the admin password to view submissions.</p>
+    <form className="ad-card ad-login" onSubmit={handleSubmit}>
+      <h1>Admin sign in</h1>
+      <p className="ad-muted">Enter the admin password to view submissions.</p>
 
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && <div className="ad-alert">{error}</div>}
 
-      <div className="field">
+      <div className="ad-field">
         <label htmlFor="password">Password</label>
         <input
           id="password"
@@ -124,28 +159,33 @@ function AdminLogin({ onSuccess }) {
         />
       </div>
 
-      <button className="btn btn-primary" type="submit" disabled={loading}>
+      <button className="ad-btn ad-btn-gold" type="submit" disabled={loading}>
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   )
 }
 
-function Dashboard({ onUnauthorized, onLogout }) {
-  const [query, setQuery] = useState('')
+function Dashboard({ onUnauthorized }) {
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [applied, setApplied] = useState(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   const load = useCallback(
-    async (q, p) => {
+    async (f, p) => {
       setLoading(true)
       setError('')
+      const params = { page: p }
+      Object.entries(f).forEach(([k, v]) => {
+        if (v !== '') params[k] = v
+      })
       try {
         const res = await api.get('/admin/submissions', {
           headers: authHeaders(),
-          params: { q: q || undefined, page: p },
+          params,
         })
         setResult(res.data)
       } catch (err) {
@@ -162,143 +202,281 @@ function Dashboard({ onUnauthorized, onLogout }) {
   )
 
   useEffect(() => {
-    load(query, page)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page])
+    load(applied, page)
+  }, [applied, page, load])
 
-  function handleSearchSubmit(e) {
-    e.preventDefault()
-    setPage(1)
-    load(query, 1)
+  function setFilter(key, value) {
+    setFilters((f) => ({ ...f, [key]: value }))
   }
 
-  async function handleLogout() {
-    try {
-      await api.post('/admin/logout', {}, { headers: authHeaders() })
-    } catch {
-      // ignore network errors on logout
-    }
-    onLogout()
+  function applyFilters(e) {
+    e?.preventDefault()
+    setPage(1)
+    setApplied(filters)
+  }
+
+  function resetFilters() {
+    setFilters(EMPTY_FILTERS)
+    setPage(1)
+    setApplied(EMPTY_FILTERS)
   }
 
   const submissions = result?.data || []
+  const stats = result?.stats
+  const activeCount = Object.values(applied).filter((v) => v !== '').length
 
   return (
-    <div className="card admin-shell">
-      <div className="admin-header">
+    <>
+      <div className="ad-title">
         <div>
           <h1>Form submissions</h1>
-          <p>Search by Form ID, verification code, name, email, phone, or zip.</p>
+          <p className="ad-muted">
+            Leads captured from the EtelQuotes landing page.
+          </p>
         </div>
-        <button className="btn btn-ghost" onClick={handleLogout}>
-          Log out
-        </button>
       </div>
 
-      <form className="toolbar" onSubmit={handleSearchSubmit}>
-        <input
-          className="search-input"
-          placeholder="Search e.g. FRM-20260925-… or a name"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button className="btn btn-secondary" type="submit">
-          Search
-        </button>
-        {query && (
-          <button
-            className="btn btn-ghost"
-            type="button"
-            onClick={() => {
-              setQuery('')
-              setPage(1)
-              load('', 1)
-            }}
-          >
-            Clear
-          </button>
-        )}
-      </form>
+      <section className="ad-stats">
+        <Stat label="Total leads" value={stats?.total} />
+        <Stat label="Today" value={stats?.today} />
+        <Stat label="With consent" value={stats?.with_consent} />
+        <Stat label="With TrustedForm cert" value={stats?.with_cert} />
+      </section>
 
-      {error && <div className="alert alert-error">{error}</div>}
+      <section className="ad-card">
+        <form className="ad-filters" onSubmit={applyFilters}>
+          <div className="ad-field ad-field-search">
+            <label htmlFor="f-q">Search</label>
+            <input
+              id="f-q"
+              placeholder="Form ID, verification code, name, email, phone, zip"
+              value={filters.q}
+              onChange={(e) => setFilter('q', e.target.value)}
+            />
+          </div>
 
-      <div className="table-wrap">
-        <table className="submissions">
-          <thead>
-            <tr>
-              <th>Form ID</th>
-              <th>Verification</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Zip</th>
-              <th>Phone</th>
-              <th>IP Address</th>
-              <th>Location</th>
-              <th>Submitted</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={9} className="empty-state">
-                  Loading…
-                </td>
-              </tr>
-            ) : submissions.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="empty-state">
-                  No submissions found.
-                </td>
-              </tr>
-            ) : (
-              submissions.map((s) => (
-                <tr key={s.id}>
-                  <td>
-                    <span className="form-id-cell">
-                      <span className="badge mono">{s.form_id}</span>
-                      <CopyButton value={s.form_id} />
-                    </span>
-                  </td>
-                  <td className="mono">{s.verification_code}</td>
-                  <td>
-                    {s.first_name} {s.last_name}
-                  </td>
-                  <td className="mono">{s.generated_email}</td>
-                  <td>{s.zip_code}</td>
-                  <td>{s.phone_number}</td>
-                  <td className="mono">{s.fake_ip_address}</td>
-                  <td>{s.ip_location}</td>
-                  <td>{new Date(s.submitted_at).toLocaleString()}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {result && result.last_page > 1 && (
-        <div className="pagination">
-          <span>
-            Page {result.current_page} of {result.last_page} &middot; {result.total} total
-          </span>
-          <div className="pagination-btns">
-            <button
-              className="btn btn-ghost"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+          <div className="ad-field">
+            <label htmlFor="f-state">State</label>
+            <select
+              id="f-state"
+              value={filters.state}
+              onChange={(e) => setFilter('state', e.target.value)}
             >
-              Previous
+              <option value="">All</option>
+              {US_STATES.map((st) => (
+                <option key={st} value={st}>
+                  {st}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ad-field">
+            <label htmlFor="f-consent">Consent</label>
+            <select
+              id="f-consent"
+              value={filters.consent}
+              onChange={(e) => setFilter('consent', e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="1">Given</option>
+              <option value="0">Not given</option>
+            </select>
+          </div>
+
+          <div className="ad-field">
+            <label htmlFor="f-cert">TrustedForm cert</label>
+            <select
+              id="f-cert"
+              value={filters.has_cert}
+              onChange={(e) => setFilter('has_cert', e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="1">Has cert</option>
+              <option value="0">Missing</option>
+            </select>
+          </div>
+
+          <div className="ad-field">
+            <label htmlFor="f-from">From</label>
+            <input
+              id="f-from"
+              type="date"
+              value={filters.from}
+              max={filters.to || undefined}
+              onChange={(e) => setFilter('from', e.target.value)}
+            />
+          </div>
+
+          <div className="ad-field">
+            <label htmlFor="f-to">To</label>
+            <input
+              id="f-to"
+              type="date"
+              value={filters.to}
+              min={filters.from || undefined}
+              onChange={(e) => setFilter('to', e.target.value)}
+            />
+          </div>
+
+          <div className="ad-filter-actions">
+            <button className="ad-btn ad-btn-gold" type="submit">
+              Apply
             </button>
             <button
-              className="btn btn-ghost"
-              disabled={page >= result.last_page}
-              onClick={() => setPage((p) => p + 1)}
+              className="ad-btn ad-btn-ghost"
+              type="button"
+              onClick={resetFilters}
+              disabled={activeCount === 0 && JSON.stringify(filters) === JSON.stringify(EMPTY_FILTERS)}
             >
-              Next
+              Reset
             </button>
           </div>
+        </form>
+
+        {error && <div className="ad-alert">{error}</div>}
+
+        <div className="ad-result-line">
+          {result ? (
+            <span>
+              <b>{result.total}</b> {result.total === 1 ? 'submission' : 'submissions'}
+              {activeCount > 0 && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
+            </span>
+          ) : (
+            <span>&nbsp;</span>
+          )}
         </div>
-      )}
+
+        <div className="ad-table-wrap">
+          <table className="ad-table">
+            <thead>
+              <tr>
+                <th>Form ID</th>
+                <th>Verification</th>
+                <th>Name</th>
+                <th>Generated email</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Zip</th>
+                <th>State</th>
+                <th>Consent</th>
+                <th>TrustedForm ID</th>
+                <th>Open form</th>
+                <th>User IP</th>
+                <th>User agent</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={14} className="ad-empty">
+                    Loading…
+                  </td>
+                </tr>
+              ) : submissions.length === 0 ? (
+                <tr>
+                  <td colSpan={14} className="ad-empty">
+                    No submissions match these filters.
+                  </td>
+                </tr>
+              ) : (
+                submissions.map((s) => (
+                  <tr key={s.id}>
+                    <td>
+                      <span className="ad-inline">
+                        <span className="ad-badge ad-mono">{s.form_id}</span>
+                        <CopyButton value={s.form_id} label="Copy form ID" />
+                      </span>
+                    </td>
+                    <td className="ad-mono">{s.verification_code}</td>
+                    <td className="ad-strong">
+                      {s.first_name} {s.last_name}
+                    </td>
+                    <td className="ad-mono">{s.generated_email}</td>
+                    <td className="ad-mono">{s.email || '—'}</td>
+                    <td>{s.phone_number}</td>
+                    <td>{s.zip_code}</td>
+                    <td>{s.state || '—'}</td>
+                    <td>
+                      <span className={`ad-pill ${s.banana_consent ? 'is-yes' : 'is-no'}`}>
+                        {s.banana_consent ? 'Yes' : 'No'}
+                      </span>
+                    </td>
+                    <td>
+                      {s.trusted_form_cert_url ? (
+                        <span className="ad-inline">
+                          <span className="ad-mono ad-cert" title={certId(s.trusted_form_cert_url)}>
+                            {certId(s.trusted_form_cert_url)}
+                          </span>
+                          <CopyButton
+                            value={certId(s.trusted_form_cert_url)}
+                            label="Copy TrustedForm ID"
+                          />
+                        </span>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td>
+                      {s.trusted_form_cert_url ? (
+                        <a
+                          className="ad-open"
+                          href={s.trusted_form_cert_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open form
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td className="ad-mono">{s.ip_address || '—'}</td>
+                    <td className="ad-ua" title={s.user_agent || ''}>
+                      {s.user_agent || '—'}
+                    </td>
+                    <td>{new Date(s.submitted_at).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {result && result.last_page > 1 && (
+          <div className="ad-pagination">
+            <span>
+              Page {result.current_page} of {result.last_page}
+            </span>
+            <div className="ad-pagination-btns">
+              <button
+                className="ad-btn ad-btn-ghost ad-btn-sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </button>
+              <button
+                className="ad-btn ad-btn-ghost ad-btn-sm"
+                disabled={page >= result.last_page}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+    </>
+  )
+}
+
+function Stat({ label, value }) {
+  return (
+    <div className="ad-stat">
+      <span className="ad-stat-label">{label}</span>
+      <span className="ad-stat-value">{value ?? '—'}</span>
     </div>
   )
 }

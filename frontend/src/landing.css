@@ -214,7 +214,8 @@
   margin-bottom: 6px;
 }
 
-.lp-field input {
+.lp-field input,
+.lp-field select {
   width: 100%;
   background: var(--black);
   border: 1px solid var(--line);
@@ -224,13 +225,15 @@
   font: inherit;
 }
 
-.lp-field input:focus {
+.lp-field input:focus,
+.lp-field select:focus {
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(212, 166, 42, 0.2);
 }
 
-.lp-field input.has-error {
+.lp-field input.has-error,
+.lp-field select.has-error {
   border-color: #ef4444;
 }
 
@@ -1419,4 +1422,20 @@ html {
     width: 44px;
     height: 44px;
   }
+}
+
+.lp-consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.lp-consent input {
+  margin-top: 3px;
+  accent-color: var(--gold);
 }

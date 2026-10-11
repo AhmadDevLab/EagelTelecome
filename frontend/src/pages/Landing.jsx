@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CountUp from "../components/CountUp";
 import Icon from "../components/Icon";
@@ -54,7 +54,7 @@ const marquee = [
 
 // Social-proof figures update as they change.
 const stats = [
-  { value: 2000, suffix: "+", label: "Happy clients" },
+  { value: 4000, suffix: "+", label: "Happy clients" },
   { value: 0, prefix: "$", label: "Cost to request a quote" },
   { text: "Live", label: "Specialists on every call" },
 ];
@@ -143,6 +143,21 @@ const faqs = [
 
 export default function Landing() {
   const [open, setOpen] = useState(0);
+
+  // TrustedForm: loads the cert script, which fills the hidden xxTrustedFormCertUrl field.
+  // Load it once only: a second instance throws "Lock found" (StrictMode runs effects twice in dev).
+  useEffect(() => {
+    if (document.getElementById("trustedform-script")) return;
+    const tf = document.createElement("script");
+    tf.id = "trustedform-script";
+    tf.type = "text/javascript";
+    tf.async = true;
+    tf.src =
+      "https://api.trustedform.com/trustedform.js?field=xxTrustedFormCertUrl&use_tagged_consent=true&l=" +
+      new Date().getTime() +
+      Math.random();
+    document.body.appendChild(tf);
+  }, []);
   const heroRef = useRef(null);
   const [menu, setMenu] = useState(false);
   const scrolled = useScrolled();
@@ -395,6 +410,14 @@ export default function Landing() {
       </button>
 
       <footer className="lp-footer">
+        <noscript>
+          <img
+            src="https://api.trustedform.com/ns.gif"
+            alt=""
+            width="1"
+            height="1"
+          />
+        </noscript>
         <div>
           <div className="lp-brand">
             <img src="/logo.jpeg" alt="" />
@@ -415,7 +438,6 @@ export default function Landing() {
           <h4>Company</h4>
           <a href="#quote">Get a quote</a>
           <a href="#faq">FAQ</a>
-          <Link to="/admin">Admin</Link>
         </div>
         <p className="lp-legal">
           &copy; {new Date().getFullYear()} {BRAND}.com &middot; Eagle

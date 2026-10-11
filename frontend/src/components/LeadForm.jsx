@@ -1,12 +1,15 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import api from "../lib/api";
-import { previewEmail } from "../lib/email";
+import { US_STATES } from "../lib/states";
 
 const initialForm = {
   first_name: "",
   last_name: "",
-  zip_code: "",
   phone_number: "",
+  email: "",
+  zip_code: "",
+  state: "",
+  bananaConsent: false,
 };
 
 export default function LeadForm() {
@@ -29,11 +32,24 @@ export default function LeadForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!form.bananaConsent) {
+      setErrors((er) => ({
+        ...er,
+        bananaConsent: "Please agree to be contacted to continue.",
+      }));
+      return;
+    }
     setFormError("");
     setSubmitting(true);
 
     try {
-      const response = await api.post("/submissions", form);
+      // TrustedForm's script fills this hidden input in the DOM, outside React state.
+      const hidden = new FormData(e.currentTarget);
+      const response = await api.post("/submissions", {
+        ...form,
+        user_agent: navigator.userAgent,
+        xxTrustedFormCertUrl: hidden.get("xxTrustedFormCertUrl") || "",
+      });
       setResult(response.data.data);
       setForm(initialForm);
       setErrors({});
@@ -55,39 +71,20 @@ export default function LeadForm() {
     }
   }
 
-  const emailPreview = useMemo(
-    () => previewEmail(form.first_name, form.last_name),
-    [form.first_name, form.last_name],
-  );
-
   if (result) {
     return (
       <div className="lp-card lp-success">
         <div className="lp-success-icon">&#10003;</div>
-        <h2>Request received</h2>
+        <h2>Your quote has been submitted</h2>
         <p className="lp-muted">
           Thanks, {result.first_name}. A specialist will call you shortly.
         </p>
-        <dl className="lp-kv">
-          <div>
-            <dt>Reference ID</dt>
-            <dd className="lp-mono">{result.form_id}</dd>
-          </div>
-          <div>
-            <dt>Verification code</dt>
-            <dd className="lp-mono">{result.verification_code}</dd>
-          </div>
-          <div>
-            <dt>Email</dt>
-            <dd className="lp-mono">{result.generated_email}</dd>
-          </div>
-          <div>
-            <dt>Phone</dt>
-            <dd>{result.phone_number}</dd>
-          </div>
-        </dl>
-        <button className="lp-btn lp-btn-ghost" onClick={() => setResult(null)}>
-          Submit another request
+        <button
+          type="button"
+          className="lp-btn lp-btn-ghost"
+          onClick={() => setResult(null)}
+        >
+          Request another quote
         </button>
       </div>
     );
@@ -119,35 +116,81 @@ export default function LeadForm() {
         />
       </div>
 
-      <div className="lp-field">
-        <label>Email (auto-generated)</label>
-        <div className="lp-email">
-          {emailPreview || "firstnamelastname47@gmail.com"}
-        </div>
-      </div>
-
       <div className="lp-row">
         <Field
-          id="zip_code"
-          label="ZIP code"
-          value={form.zip_code}
-          error={errors.zip_code}
-          onChange={updateField}
-          autoComplete="postal-code"
-          inputMode="numeric"
-        />
-        <Field
           id="phone_number"
-          label="Phone number"
+          label="Phone"
           value={form.phone_number}
           error={errors.phone_number}
           onChange={updateField}
           autoComplete="tel"
           inputMode="tel"
         />
+        <Field
+          id="email"
+          label="Email"
+          type="email"
+          value={form.email}
+          error={errors.email}
+          onChange={updateField}
+          autoComplete="email"
+        />
       </div>
 
-      <button className="lp-btn lp-btn-gold" type="submit" disabled={submitting}>
+      <div className="lp-row">
+        <Field
+          id="zip_code"
+          label="Zip code"
+          value={form.zip_code}
+          error={errors.zip_code}
+          onChange={updateField}
+          autoComplete="postal-code"
+          inputMode="numeric"
+        />
+        <div className="lp-field">
+          <label htmlFor="state">State</label>
+          <select
+            id="state"
+            name="state"
+            value={form.state}
+            className={errors.state ? "has-error" : ""}
+            onChange={(e) => updateField("state", e.target.value)}
+            autoComplete="address-level1"
+          >
+            <option value="">Select</option>
+            {US_STATES.map((st) => (
+              <option key={st} value={st}>
+                {st}
+              </option>
+            ))}
+          </select>
+          {errors.state && <div className="lp-error">{errors.state}</div>}
+        </div>
+      </div>
+
+      <input type="hidden" name="xxTrustedFormCertUrl" />
+
+      <label className="lp-consent">
+        <input
+          type="checkbox"
+          name="bananaConsent"
+          checked={form.bananaConsent}
+          onChange={(e) => updateField("bananaConsent", e.target.checked)}
+        />
+        <span>
+          I agree to be contacted by phone, text or email about telecom quotes,
+          including by automated means. Consent is not a condition of purchase.
+        </span>
+      </label>
+      {errors.bananaConsent && (
+        <div className="lp-error">{errors.bananaConsent}</div>
+      )}
+
+      <button
+        className="lp-btn lp-btn-gold"
+        type="submit"
+        disabled={submitting || !form.bananaConsent}
+      >
         {submitting ? "Submitting…" : "Get my quote"}
       </button>
     </form>

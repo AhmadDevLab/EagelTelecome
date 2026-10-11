@@ -453,3 +453,20 @@ table.submissions tbody tr:hover {
     text-align: left;
   }
 }
+
+table.submissions .user-agent-cell {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+table.submissions .cert-id {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
