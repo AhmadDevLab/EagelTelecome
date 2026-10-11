@@ -15,10 +15,15 @@ class FormSubmission extends Model
         'verification_code',
         'first_name',
         'last_name',
+        'email',
         'generated_email',
         'zip_code',
+        'state',
+        'trusted_form_cert_url',
+        'banana_consent',
         'phone_number',
         'ip_address',
+        'user_agent',
         'fake_ip_address',
         'ip_location',
         'submitted_at',
@@ -47,6 +52,7 @@ class FormSubmission extends Model
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'banana_consent' => 'boolean',
     ];
 
     public static function generateFormId(): string
