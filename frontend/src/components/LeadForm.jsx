@@ -128,7 +128,7 @@ export default function LeadForm() {
         />
         <Field
           id="email"
-          label="Email"
+          label="Email (optional)"
           type="email"
           value={form.email}
           error={errors.email}

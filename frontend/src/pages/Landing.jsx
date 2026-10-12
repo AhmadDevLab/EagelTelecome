@@ -15,14 +15,14 @@ const solutions = [
     text: "Medicare Advantage, Supplement and Part D options explained by a licensed agent.",
   },
   {
-    title: "ACA & Under-65 Health",
+    title: "ACA",
     icon: "users",
-    text: "ACA Marketplace and U65 individual and family plans, with subsidies checked for you.",
+    text: "ACA Marketplace and family plans, with subsidies checked for you.",
   },
   {
-    title: "Final Expense Life",
+    title: "Final Expense",
     icon: "shield",
-    text: "Affordable whole life coverage to help your family with end-of-life costs.",
+    text: "Affordable whole coverage to help your family with end-of-life costs.",
   },
   {
     title: "Mortgage Protection",
@@ -194,7 +194,7 @@ export default function Landing() {
     <div className="lp">
       <header className={`lp-header ${scrolled ? "is-scrolled" : ""}`}>
         <a href="#top" className="lp-brand">
-          <img src="/logo.jpeg" alt="Eagle Telecommunications" />
+          <img src="/logo.jpeg" alt="Etel Quotes" />
           <span>
             Etel<b>Quotes</b>
           </span>
@@ -453,7 +453,7 @@ export default function Landing() {
               Etel<b>Quotes</b>
             </span>
           </div>
-          <p>A service of Eagle Telecommunications. Calls that close deals.</p>
+          <p>A service of Etel Quotes. Calls that close deals.</p>
         </div>
         <div>
           <h4>Solutions</h4>
@@ -468,11 +468,11 @@ export default function Landing() {
           <a href="#faq">FAQ</a>
         </div>
         <p className="lp-legal">
-          &copy; {new Date().getFullYear()} {BRAND}.com &middot; Eagle
-          Telecommunications. Availability and eligibility vary by state and ZIP
-          code. {BRAND} is not affiliated with or endorsed by Medicare, the U.S.
-          government or the federal Medicare program. Debt settlement results
-          vary and are not guaranteed.
+          &copy; {new Date().getFullYear()} {BRAND}.com &middot; Etel Quotes.
+          Availability and eligibility vary by state and ZIP code. {BRAND} is
+          not affiliated with or endorsed by Medicare, the U.S. government or
+          the federal Medicare program. Debt settlement results vary and are not
+          guaranteed.
         </p>
       </footer>
     </div>
