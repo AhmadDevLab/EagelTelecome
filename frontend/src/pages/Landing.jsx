@@ -41,6 +41,22 @@ const solutions = [
   },
 ];
 
+const contact = [
+  { icon: "pin", title: "Address", text: "Serving All 50 States of the USA" },
+  {
+    icon: "mail",
+    title: "Mail Us",
+    text: "hello@etelquotes.com",
+    href: "mailto:hello@etelquotes.com",
+  },
+  {
+    icon: "globe",
+    title: "Website",
+    text: "www.etelquotes.com",
+    href: "https://www.etelquotes.com",
+  },
+];
+
 const marquee = [
   "Medicare",
   "Medicare Advantage",
@@ -149,8 +165,6 @@ const faqs = [
 export default function Landing() {
   const [open, setOpen] = useState(0);
 
-  // TrustedForm: loads the cert script, which fills the hidden xxTrustedFormCertUrl field.
-  // Load it once only: a second instance throws "Lock found" (StrictMode runs effects twice in dev).
   useEffect(() => {
     if (document.getElementById("trustedform-script")) return;
     const tf = document.createElement("script");
@@ -168,7 +182,6 @@ export default function Landing() {
   const scrolled = useScrolled();
   const pastHero = useScrolled(640);
 
-  // Any "#quote" link scrolls to the form and puts the cursor in First name.
   useEffect(() => {
     const onClick = (e) => {
       const link = e.target.closest?.('a[href="#quote"]');
@@ -207,6 +220,7 @@ export default function Landing() {
           <a href="#how">How it works</a>
           <a href="#why">Why us</a>
           <a href="#faq">FAQ</a>
+          <a href="#contact">Contact</a>
         </nav>
         <a href="#quote" className="lp-btn lp-btn-gold lp-btn-sm lp-header-cta">
           Get a quote
@@ -315,7 +329,7 @@ export default function Landing() {
           </ol>
         </section>
 
-        <section className="lp-stats" aria-label="Our numbers">
+        {/* <section className="lp-stats" aria-label="Our numbers">
           <div className="lp-stats-inner">
             {stats.map((st, i) => (
               <div
@@ -337,7 +351,7 @@ export default function Landing() {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         <section id="why" className="lp-section">
           <p className="lp-kicker" data-reveal>
@@ -409,6 +423,29 @@ export default function Landing() {
           </div>
         </section>
 
+        <section id="contact" className="lp-section">
+          <p className="lp-kicker" data-reveal>
+            Contact us
+          </p>
+          <h2 data-reveal>We&rsquo;re here to help</h2>
+          <div className="lp-contact">
+            {contact.map((c, i) => (
+              <div
+                key={c.title}
+                className="lp-contact-item"
+                data-reveal
+                style={{ "--i": i }}
+              >
+                <span className="lp-icon">
+                  <Icon name={c.icon} />
+                </span>
+                <h3>{c.title}</h3>
+                {c.href ? <a href={c.href}>{c.text}</a> : <p>{c.text}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="lp-cta" data-reveal>
           <h2>Ready to find better coverage?</h2>
           <p>Request your free quote and speak with a specialist today.</p>
@@ -466,13 +503,20 @@ export default function Landing() {
           <h4>Company</h4>
           <a href="#quote">Get a quote</a>
           <a href="#faq">FAQ</a>
+          <a href="#contact">Contact</a>
         </div>
-        <p className="lp-legal">
-          &copy; {new Date().getFullYear()} {BRAND}.com &middot; Etel Quotes.
-          Availability and eligibility vary by state and ZIP code. {BRAND} is
-          not affiliated with or endorsed by Medicare, the U.S. government or
-          the federal Medicare program. Debt settlement results vary and are not
-          guaranteed.
+        <h4 className="lp-legal-title">Disclaimer</h4>
+        <p className="lp-legal lp-legal-body">
+          Etel Quotes is a free service to assist users in getting insurance
+          quotes from insurance providers. Etel Quotes is not affiliated with
+          any state or government agency. Etel Quotes is not an insurance
+          agency or broker, nor an insurance referral service. Etel Quotes
+          does not endorse or recommend any participating Third-Party Insurance
+          Providers that pay to participate in this advertising.
+        </p>
+        <p className="lp-legal lp-legal-copy">
+          &copy; {new Date().getFullYear()} {BRAND}.com &middot; Etel Quotes All
+          rights reserved.
         </p>
       </footer>
     </div>

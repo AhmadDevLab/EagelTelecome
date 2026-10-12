@@ -42,7 +42,6 @@ export default function LeadForm() {
     setSubmitting(true);
 
     try {
-      // TrustedForm's script fills this hidden input in the DOM, outside React state.
       const hidden = new FormData(e.currentTarget);
       const response = await api.post("/submissions", {
         ...form,
@@ -158,20 +157,34 @@ export default function LeadForm() {
         />
       </div>
 
-      <input type="hidden" id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" />
+      <input
+        type="hidden"
+        id="xxTrustedFormCertUrl"
+        name="xxTrustedFormCertUrl"
+      />
 
       <label className="lp-consent">
         <input
           type="checkbox"
           id="bananaConsent"
           name="bananaConsent"
+          data-tf-element-role="consent-opt-in"
           checked={form.bananaConsent}
           onChange={(e) => updateField("bananaConsent", e.target.checked)}
         />
-        <span>
-          I agree to be contacted by phone, text or email about health
-          insurance, life insurance, debt settlement and home improvement
-          quotes, including by automated means. Consent is not a condition of purchase.
+        <span data-tf-element-role="consent-language">
+          By clicking &quot;Check Box&quot;, I expressly consent to these Terms
+          of Service and Privacy Policy, and authorize etelquotes.com, their
+          agents, and Marketing Partners to contact me about insurance products
+          and other non-insurance offers by telephone calls, pre-recorded
+          messages or artificial voice, email, and text messages to the number
+          and email address I provided above. I agree to receive telemarketing
+          calls and pre-recorded messages via an automated dialing system, even
+          if my telephone number is a mobile number that is currently listed on
+          any state, federal, or corporate &quot;Do Not Call&quot; list. I
+          understand that my consent is not a condition of purchase of any goods
+          or services. Consent can be revoked by any reasonable means. Standard
+          message and data rates may apply.
         </span>
       </label>
       {errors.bananaConsent && (
@@ -180,6 +193,7 @@ export default function LeadForm() {
 
       <button
         id="submit_quote"
+        data-tf-element-role="submit"
         className="lp-btn lp-btn-gold"
         type="submit"
         disabled={submitting || !form.bananaConsent}

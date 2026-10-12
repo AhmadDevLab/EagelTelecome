@@ -1439,3 +1439,68 @@ html {
   margin-top: 3px;
   accent-color: var(--gold);
 }
+
+/* contact */
+.lp-contact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 32px auto 0;
+}
+
+.lp-contact-item {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.lp-contact-item .lp-icon {
+  margin: 0 auto 14px;
+}
+
+.lp-contact-item h3 {
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.lp-contact-item p,
+.lp-contact-item a {
+  margin: 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.lp-contact-item a:hover {
+  color: var(--gold-hi);
+}
+
+@media (max-width: 700px) {
+  .lp-contact {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lp-footer .lp-legal-copy {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: -12px;
+}
+
+.lp-footer .lp-legal-title {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.lp-footer .lp-legal-body {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: -12px;
+}
+
+.lp-footer .lp-legal-copy {
+  margin-top: 0;
+}
