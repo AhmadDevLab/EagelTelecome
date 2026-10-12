@@ -15,7 +15,7 @@ class FormSubmissionController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\'-]+$/u'],
             'last_name' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\'-]+$/u'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
             'zip_code' => ['required', 'string', 'max:12', 'regex:/^[A-Za-z0-9\s-]{3,12}$/'],
             'state' => ['required', 'string', 'size:2', 'alpha'],
             'xxTrustedFormCertUrl' => ['nullable', 'string', 'max:2048'],
@@ -43,7 +43,7 @@ class FormSubmissionController extends Controller
             'first_name' => trim($data['first_name']),
             'last_name' => trim($data['last_name']),
             'generated_email' => FormSubmission::generateFakeEmail($data['first_name'], $data['last_name']),
-            'email' => trim($data['email']),
+            'email' => filled($data['email'] ?? null) ? trim($data['email']) : null,
             'zip_code' => $zipCode,
             'state' => strtoupper($data['state']),
             'trusted_form_cert_url' => $data['xxTrustedFormCertUrl'] ?? null,
