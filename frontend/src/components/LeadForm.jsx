@@ -178,8 +178,9 @@ export default function LeadForm() {
           onChange={(e) => updateField("bananaConsent", e.target.checked)}
         />
         <span>
-          I agree to be contacted by phone, text or email about telecom quotes,
-          including by automated means. Consent is not a condition of purchase.
+          I agree to be contacted by phone, text or email about health
+          insurance, life insurance, debt settlement and home improvement
+          quotes, including by automated means. Consent is not a condition of purchase.
         </span>
       </label>
       {errors.bananaConsent && (
