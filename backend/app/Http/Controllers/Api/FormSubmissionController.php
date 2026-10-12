@@ -96,18 +96,18 @@ class FormSubmissionController extends Controller
         }
 
         if ($from = $request->query('from')) {
-            $query->where('submitted_at', '>=', Carbon::parse($from)->startOfDay());
+            $query->where('submitted_at', '>=', Carbon::parse($from, config('eagle.display_timezone'))->startOfDay()->utc());
         }
 
         if ($to = $request->query('to')) {
-            $query->where('submitted_at', '<=', Carbon::parse($to)->endOfDay());
+            $query->where('submitted_at', '<=', Carbon::parse($to, config('eagle.display_timezone'))->endOfDay()->utc());
         }
 
         $submissions = $query->orderByDesc('submitted_at')->paginate(15)->toArray();
 
         $submissions['stats'] = [
             'total' => FormSubmission::count(),
-            'today' => FormSubmission::where('submitted_at', '>=', now()->startOfDay())->count(),
+            'today' => FormSubmission::where('submitted_at', '>=', now(config('eagle.display_timezone'))->startOfDay()->utc())->count(),
             'with_consent' => FormSubmission::where('banana_consent', true)->count(),
             'with_cert' => FormSubmission::whereNotNull('trusted_form_cert_url')->where('trusted_form_cert_url', '!=', '')->count(),
         ];
