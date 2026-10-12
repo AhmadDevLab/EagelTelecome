@@ -10,49 +10,48 @@ const BRAND = "EtelQuotes";
 
 const solutions = [
   {
-    title: "Home Internet & Fiber",
-    icon: "wifi",
-    text: "Compare fiber, cable and 5G home plans available at your address.",
+    title: "Medicare",
+    icon: "heart",
+    text: "Medicare Advantage, Supplement and Part D options explained by a licensed agent.",
   },
   {
-    title: "Mobile Plans",
-    icon: "mobile",
-    text: "Unlimited, family and prepaid plans from the major carriers.",
+    title: "ACA & Under-65 Health",
+    icon: "users",
+    text: "ACA Marketplace and U65 individual and family plans, with subsidies checked for you.",
   },
   {
-    title: "Business Phone & VoIP",
-    icon: "phone",
-    text: "Hosted PBX, SIP trunking and multi-line systems for growing teams.",
+    title: "Final Expense Life",
+    icon: "shield",
+    text: "Affordable whole life coverage to help your family with end-of-life costs.",
   },
   {
-    title: "TV & Streaming",
-    icon: "tv",
-    text: "Cable, satellite and streaming bundles matched to what you watch.",
-  },
-  {
-    title: "Bundles & Savings",
-    icon: "layers",
-    text: "Combine internet, mobile and TV into one plan and one bill.",
-  },
-  {
-    title: "Relocation & New Service",
+    title: "Mortgage Protection",
     icon: "home",
-    text: "Moving soon? Line up service before you arrive.",
+    text: "Life coverage that can help keep your family in the home if the unexpected happens.",
+  },
+  {
+    title: "Debt Settlement",
+    icon: "wallet",
+    text: "Talk to a specialist about options for resolving unsecured debt.",
+  },
+  {
+    title: "Home Improvement",
+    icon: "tools",
+    text: "Get matched with contractors for roofing, windows, baths, HVAC and more.",
   },
 ];
 
 const marquee = [
-  "Fiber Internet",
-  "5G Home",
-  "Unlimited Mobile",
-  "Business VoIP",
-  "SIP Trunking",
-  "Streaming TV",
-  "Bundles",
-  "New Service",
+  "Medicare",
+  "Medicare Advantage",
+  "ACA Plans",
+  "Under 65 Health",
+  "Final Expense",
+  "Mortgage Protection",
+  "Debt Settlement",
+  "Home Improvement",
 ];
 
-// Social-proof figures update as they change.
 const stats = [
   { value: 3756, suffix: "+", label: "Happy clients" },
   { value: 0, prefix: "$", label: "Cost to request a quote" },
@@ -68,7 +67,7 @@ const values = [
   {
     icon: "pin",
     title: "Local availability",
-    text: "Quotes reflect what providers actually offer at your ZIP code.",
+    text: "Options reflect what is available in your state and ZIP code.",
   },
   {
     icon: "shield",
@@ -80,22 +79,28 @@ const values = [
 const trust = [
   "Free quotes",
   "Live specialists",
-  "Local plans",
+  "Options for your state",
   "No obligation",
 ];
 
 const steps = [
-  ["Tell us where you are", "Share your ZIP code and the services you need."],
   [
-    "We find local options",
-    "We check which providers and plans serve your area.",
+    "Tell us what you need",
+    "Share your ZIP code and the coverage or service you are looking for.",
+  ],
+  [
+    "We match you locally",
+    "We find specialists and partners that serve your state and area.",
   ],
   [
     "Quick qualification",
-    "A specialist confirms your needs, budget and timing.",
+    "A few questions about your situation, needs and budget.",
   ],
-  ["Live call", "You speak with a licensed representative, no waiting."],
-  ["Get connected", "Pick a plan and get set up, usually within days."],
+  ["Live call", "You speak with a representative, no waiting."],
+  [
+    "Decide with confidence",
+    "Compare your options and choose what fits, or walk away.",
+  ],
 ];
 
 const comparison = [
@@ -111,33 +116,33 @@ const comparison = [
     "Clear plan and pricing details",
     "Fine print and surprises",
   ],
-  ["Flexibility", "Compare many providers", "One provider's offer"],
+  ["Flexibility", "Compare options from many carriers", "One company's offer"],
 ];
 
 const faqs = [
   [
     "Is there a cost to get a quote?",
-    "No. Requesting a quote is free and there is no obligation to sign up for anything.",
+    "No. Requesting a quote is free and there is no obligation to enroll or sign up for anything.",
   ],
   [
     "Who will call me?",
-    "A representative from a provider or partner that serves your ZIP code. Calls typically arrive within minutes of your request.",
+    "A licensed agent or representative from a partner that serves your state. Calls typically arrive within minutes of your request.",
   ],
   [
     "What do you do with my information?",
-    "We use your details only to connect you with providers for the service you requested. See our Privacy Policy for details.",
+    "We use your details only to connect you with specialists for the service you requested. See our Privacy Policy for details.",
   ],
   [
-    "Which providers do you work with?",
-    "We work with a range of internet, mobile, TV and business phone providers. Availability depends on your address.",
+    "Which insurance companies do you work with?",
+    "We work with a range of health and life insurance carriers. Availability and eligibility depend on your state, age and ZIP code.",
   ],
   [
-    "Can I request business services?",
-    "Yes. Business phone, VoIP and multi-line plans are available. Mention it when the specialist calls.",
+    "Can I enroll in Medicare or ACA plans at any time?",
+    "Medicare and ACA plans have enrollment periods. A specialist can tell you whether you are in an open or special enrollment window.",
   ],
   [
-    "How fast can I get connected?",
-    "Mobile plans can be active the same day. Home internet installation usually takes a few days, depending on the provider.",
+    "Does debt settlement work for everyone?",
+    "No. Not every debt qualifies and results vary. A specialist will explain the options, costs and possible effects before you decide anything.",
   ],
 ];
 
@@ -227,15 +232,16 @@ export default function Landing() {
           */}
           <div className="lp-hero-copy lp-intro">
             <p className="lp-eyebrow">
-              <span className="lp-dot" /> Telecom quotes, delivered live
+              <span className="lp-dot" /> Health, life &amp; home quotes,
+              delivered live
             </p>
             <h1>
-              The right phone, internet and TV plan, <em>on a live call.</em>
+              The right health coverage and savings, <em>on a live call.</em>
             </h1>
             <p className="lp-lead">
-              {BRAND} connects you with licensed representatives who can quote
-              plans available at your address. Calls that close deals, for
-              customers who are ready to switch.
+              {BRAND} connects you with licensed agents and specialists for
+              Medicare, ACA and under-65 health plans, life insurance, debt
+              relief and home improvement. Free to request, with no obligation.
             </p>
             <div className="lp-hero-actions">
               <a href="#quote" className="lp-btn lp-btn-gold">
@@ -270,9 +276,9 @@ export default function Landing() {
           <p className="lp-kicker" data-reveal>
             Solutions
           </p>
-          <h2 data-reveal>One place for every telecom service</h2>
+          <h2 data-reveal>One place for coverage and savings</h2>
           <p className="lp-sub" data-reveal data-delay="1">
-            Whatever you need connected, we route you to the right specialist.
+            Whatever you are looking for, we route you to the right specialist.
           </p>
           <div className="lp-grid">
             {solutions.map((s, i) => (
@@ -297,7 +303,7 @@ export default function Landing() {
           <p className="lp-kicker" data-reveal>
             How it works
           </p>
-          <h2 data-reveal>From request to connected in five steps</h2>
+          <h2 data-reveal>From request to answers in five steps</h2>
           <ol className="lp-steps">
             {steps.map(([title, text], i) => (
               <li key={title} data-reveal style={{ "--i": i }}>
@@ -404,7 +410,7 @@ export default function Landing() {
         </section>
 
         <section className="lp-cta" data-reveal>
-          <h2>Ready to find a better plan?</h2>
+          <h2>Ready to find better coverage?</h2>
           <p>Request your free quote and speak with a specialist today.</p>
           <a href="#quote" className="lp-btn lp-btn-gold">
             Get my quote
@@ -451,10 +457,10 @@ export default function Landing() {
         </div>
         <div>
           <h4>Solutions</h4>
-          <a href="#solutions">Internet &amp; Fiber</a>
-          <a href="#solutions">Mobile</a>
-          <a href="#solutions">Business Phone</a>
-          <a href="#solutions">TV &amp; Streaming</a>
+          <a href="#solutions">Medicare</a>
+          <a href="#solutions">ACA &amp; Under-65 Health</a>
+          <a href="#solutions">Final Expense &amp; Mortgage Protection</a>
+          <a href="#solutions">Debt Settlement &amp; Home Improvement</a>
         </div>
         <div>
           <h4>Company</h4>
@@ -463,8 +469,10 @@ export default function Landing() {
         </div>
         <p className="lp-legal">
           &copy; {new Date().getFullYear()} {BRAND}.com &middot; Eagle
-          Telecommunications. Quotes are subject to provider availability at
-          your address.
+          Telecommunications. Availability and eligibility vary by state and ZIP
+          code. {BRAND} is not affiliated with or endorsed by Medicare, the U.S.
+          government or the federal Medicare program. Debt settlement results
+          vary and are not guaranteed.
         </p>
       </footer>
     </div>
