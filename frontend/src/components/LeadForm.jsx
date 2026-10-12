@@ -1,6 +1,5 @@
 import { useState } from "react";
 import api from "../lib/api";
-import { US_STATES } from "../lib/states";
 
 const initialForm = {
   first_name: "",
@@ -147,32 +146,24 @@ export default function LeadForm() {
           autoComplete="postal-code"
           inputMode="numeric"
         />
-        <div className="lp-field">
-          <label htmlFor="state">State</label>
-          <select
-            id="state"
-            name="state"
-            value={form.state}
-            className={errors.state ? "has-error" : ""}
-            onChange={(e) => updateField("state", e.target.value)}
-            autoComplete="address-level1"
-          >
-            <option value="">Select</option>
-            {US_STATES.map((st) => (
-              <option key={st} value={st}>
-                {st}
-              </option>
-            ))}
-          </select>
-          {errors.state && <div className="lp-error">{errors.state}</div>}
-        </div>
+        <Field
+          id="state"
+          label="State"
+          value={form.state}
+          error={errors.state}
+          onChange={(id, v) => updateField(id, v.toUpperCase())}
+          autoComplete="address-level1"
+          placeholder="e.g. TX"
+          maxLength={2}
+        />
       </div>
 
-      <input type="hidden" name="xxTrustedFormCertUrl" />
+      <input type="hidden" id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" />
 
       <label className="lp-consent">
         <input
           type="checkbox"
+          id="bananaConsent"
           name="bananaConsent"
           checked={form.bananaConsent}
           onChange={(e) => updateField("bananaConsent", e.target.checked)}
@@ -188,6 +179,7 @@ export default function LeadForm() {
       )}
 
       <button
+        id="submit_quote"
         className="lp-btn lp-btn-gold"
         type="submit"
         disabled={submitting || !form.bananaConsent}
@@ -204,6 +196,7 @@ function Field({ id, label, value, error, onChange, ...rest }) {
       <label htmlFor={id}>{label}</label>
       <input
         id={id}
+        name={id}
         value={value}
         className={error ? "has-error" : ""}
         onChange={(e) => onChange(id, e.target.value)}

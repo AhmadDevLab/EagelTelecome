@@ -15,6 +15,18 @@ const EMPTY_FILTERS = {
   to: '',
 }
 
+// Timestamps are shown in US Eastern time regardless of the viewer's location.
+const US_TIMEZONE = 'America/New_York'
+function formatUsTime(value) {
+  if (!value) return '—'
+  return new Date(value).toLocaleString('en-US', {
+    timeZone: US_TIMEZONE,
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZoneName: 'short',
+  })
+}
+
 // "https://cert.trustedform.com/<id>" -> "<id>"
 function certId(url) {
   return url.split('?')[0].replace(/\/+$/, '').split('/').pop()
@@ -436,7 +448,7 @@ function Dashboard({ onUnauthorized }) {
                     <td className="ad-ua" title={s.user_agent || ''}>
                       {s.user_agent || '—'}
                     </td>
-                    <td>{new Date(s.submitted_at).toLocaleString()}</td>
+                    <td>{formatUsTime(s.submitted_at)}</td>
                   </tr>
                 ))
               )}
