@@ -1,59 +1,58 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import api, { authHeaders } from '../lib/api'
-import { US_STATES } from '../lib/states'
-import '../admin.css'
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import api, { authHeaders } from "../lib/api";
+import { US_STATES } from "../lib/states";
+import "../admin.css";
 
-const TOKEN_KEY = 'eagle_admin_token'
+const TOKEN_KEY = "eagle_admin_token";
 
 const EMPTY_FILTERS = {
-  q: '',
-  state: '',
-  consent: '',
-  has_cert: '',
-  from: '',
-  to: '',
-}
+  q: "",
+  state: "",
+  consent: "",
+  has_cert: "",
+  from: "",
+  to: "",
+};
 
-// Timestamps are shown in US Eastern time regardless of the viewer's location.
-const US_TIMEZONE = 'America/New_York'
+const US_TIMEZONE = "America/New_York";
 function formatUsTime(value) {
-  if (!value) return '—'
-  return new Date(value).toLocaleString('en-US', {
+  if (!value) return "—";
+  return new Date(value).toLocaleString("en-US", {
     timeZone: US_TIMEZONE,
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZoneName: 'short',
-  })
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
 }
 
 // "https://cert.trustedform.com/<id>" -> "<id>"
 function certId(url) {
-  return url.split('?')[0].replace(/\/+$/, '').split('/').pop()
+  return url.split("?")[0].replace(/\/+$/, "").split("/").pop();
 }
 
-function CopyButton({ value, label = 'Copy' }) {
-  const [copied, setCopied] = useState(false)
+function CopyButton({ value, label = "Copy" }) {
+  const [copied, setCopied] = useState(false);
 
   async function handleCopy(e) {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(value)
+      await navigator.clipboard.writeText(value);
     } catch {
-      const el = document.createElement('textarea')
-      el.value = value
-      el.style.position = 'fixed'
-      el.style.opacity = '0'
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
+      const el = document.createElement("textarea");
+      el.value = value;
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
     }
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1200)
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
   }
 
   return (
@@ -61,34 +60,52 @@ function CopyButton({ value, label = 'Copy' }) {
       type="button"
       className="ad-copy"
       onClick={handleCopy}
-      title={copied ? 'Copied!' : label}
+      title={copied ? "Copied!" : label}
       aria-label={label}
     >
       {copied ? (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="20 6 9 17 4 12" />
         </svg>
       ) : (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
       )}
     </button>
-  )
+  );
 }
 
 export default function AdminPage() {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
 
   function handleLogin(newToken) {
-    localStorage.setItem(TOKEN_KEY, newToken)
-    setToken(newToken)
+    localStorage.setItem(TOKEN_KEY, newToken);
+    setToken(newToken);
   }
 
   function handleLogout() {
-    localStorage.removeItem(TOKEN_KEY)
-    setToken(null)
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
   }
 
   return (
@@ -117,42 +134,46 @@ export default function AdminPage() {
         )}
       </main>
     </div>
-  )
+  );
 }
 
 function LogoutButton({ onLogout }) {
   async function handleLogout() {
     try {
-      await api.post('/admin/logout', {}, { headers: authHeaders() })
+      await api.post("/admin/logout", {}, { headers: authHeaders() });
     } catch {
       // ignore network errors on logout
     }
-    onLogout()
+    onLogout();
   }
 
   return (
-    <button type="button" className="ad-btn ad-btn-ghost ad-btn-sm" onClick={handleLogout}>
+    <button
+      type="button"
+      className="ad-btn ad-btn-ghost ad-btn-sm"
+      onClick={handleLogout}
+    >
       Log out
     </button>
-  )
+  );
 }
 
 function AdminLogin({ onSuccess }) {
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
-      const res = await api.post('/admin/login', { password })
-      onSuccess(res.data.token)
+      const res = await api.post("/admin/login", { password });
+      onSuccess(res.data.token);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed.')
+      setError(err.response?.data?.message || "Login failed.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -175,70 +196,70 @@ function AdminLogin({ onSuccess }) {
       </div>
 
       <button className="ad-btn ad-btn-gold" type="submit" disabled={loading}>
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? "Signing in…" : "Sign in"}
       </button>
     </form>
-  )
+  );
 }
 
 function Dashboard({ onUnauthorized }) {
-  const [filters, setFilters] = useState(EMPTY_FILTERS)
-  const [applied, setApplied] = useState(EMPTY_FILTERS)
-  const [page, setPage] = useState(1)
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [applied, setApplied] = useState(EMPTY_FILTERS);
+  const [page, setPage] = useState(1);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const load = useCallback(
     async (f, p) => {
-      setLoading(true)
-      setError('')
-      const params = { page: p }
+      setLoading(true);
+      setError("");
+      const params = { page: p };
       Object.entries(f).forEach(([k, v]) => {
-        if (v !== '') params[k] = v
-      })
+        if (v !== "") params[k] = v;
+      });
       try {
-        const res = await api.get('/admin/submissions', {
+        const res = await api.get("/admin/submissions", {
           headers: authHeaders(),
           params,
-        })
-        setResult(res.data)
+        });
+        setResult(res.data);
       } catch (err) {
         if (err.response?.status === 401) {
-          onUnauthorized()
-          return
+          onUnauthorized();
+          return;
         }
-        setError('Failed to load submissions.')
+        setError("Failed to load submissions.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [onUnauthorized]
-  )
+    [onUnauthorized],
+  );
 
   useEffect(() => {
-    load(applied, page)
-  }, [applied, page, load])
+    load(applied, page);
+  }, [applied, page, load]);
 
   function setFilter(key, value) {
-    setFilters((f) => ({ ...f, [key]: value }))
+    setFilters((f) => ({ ...f, [key]: value }));
   }
 
   function applyFilters(e) {
-    e?.preventDefault()
-    setPage(1)
-    setApplied(filters)
+    e?.preventDefault();
+    setPage(1);
+    setApplied(filters);
   }
 
   function resetFilters() {
-    setFilters(EMPTY_FILTERS)
-    setPage(1)
-    setApplied(EMPTY_FILTERS)
+    setFilters(EMPTY_FILTERS);
+    setPage(1);
+    setApplied(EMPTY_FILTERS);
   }
 
-  const submissions = result?.data || []
-  const stats = result?.stats
-  const activeCount = Object.values(applied).filter((v) => v !== '').length
+  const submissions = result?.data || [];
+  const stats = result?.stats;
+  const activeCount = Object.values(applied).filter((v) => v !== "").length;
 
   return (
     <>
@@ -266,7 +287,7 @@ function Dashboard({ onUnauthorized }) {
               id="f-q"
               placeholder="Form ID, verification code, name, email, phone, zip"
               value={filters.q}
-              onChange={(e) => setFilter('q', e.target.value)}
+              onChange={(e) => setFilter("q", e.target.value)}
             />
           </div>
 
@@ -275,7 +296,7 @@ function Dashboard({ onUnauthorized }) {
             <select
               id="f-state"
               value={filters.state}
-              onChange={(e) => setFilter('state', e.target.value)}
+              onChange={(e) => setFilter("state", e.target.value)}
             >
               <option value="">All</option>
               {US_STATES.map((st) => (
@@ -291,7 +312,7 @@ function Dashboard({ onUnauthorized }) {
             <select
               id="f-consent"
               value={filters.consent}
-              onChange={(e) => setFilter('consent', e.target.value)}
+              onChange={(e) => setFilter("consent", e.target.value)}
             >
               <option value="">All</option>
               <option value="1">Given</option>
@@ -304,7 +325,7 @@ function Dashboard({ onUnauthorized }) {
             <select
               id="f-cert"
               value={filters.has_cert}
-              onChange={(e) => setFilter('has_cert', e.target.value)}
+              onChange={(e) => setFilter("has_cert", e.target.value)}
             >
               <option value="">All</option>
               <option value="1">Has cert</option>
@@ -319,7 +340,7 @@ function Dashboard({ onUnauthorized }) {
               type="date"
               value={filters.from}
               max={filters.to || undefined}
-              onChange={(e) => setFilter('from', e.target.value)}
+              onChange={(e) => setFilter("from", e.target.value)}
             />
           </div>
 
@@ -330,7 +351,7 @@ function Dashboard({ onUnauthorized }) {
               type="date"
               value={filters.to}
               min={filters.from || undefined}
-              onChange={(e) => setFilter('to', e.target.value)}
+              onChange={(e) => setFilter("to", e.target.value)}
             />
           </div>
 
@@ -342,7 +363,10 @@ function Dashboard({ onUnauthorized }) {
               className="ad-btn ad-btn-ghost"
               type="button"
               onClick={resetFilters}
-              disabled={activeCount === 0 && JSON.stringify(filters) === JSON.stringify(EMPTY_FILTERS)}
+              disabled={
+                activeCount === 0 &&
+                JSON.stringify(filters) === JSON.stringify(EMPTY_FILTERS)
+              }
             >
               Reset
             </button>
@@ -354,8 +378,10 @@ function Dashboard({ onUnauthorized }) {
         <div className="ad-result-line">
           {result ? (
             <span>
-              <b>{result.total}</b> {result.total === 1 ? 'submission' : 'submissions'}
-              {activeCount > 0 && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
+              <b>{result.total}</b>{" "}
+              {result.total === 1 ? "submission" : "submissions"}
+              {activeCount > 0 &&
+                ` · ${activeCount} filter${activeCount > 1 ? "s" : ""} active`}
             </span>
           ) : (
             <span>&nbsp;</span>
@@ -409,19 +435,24 @@ function Dashboard({ onUnauthorized }) {
                       {s.first_name} {s.last_name}
                     </td>
                     <td className="ad-mono">{s.generated_email}</td>
-                    <td className="ad-mono">{s.email || '—'}</td>
+                    <td className="ad-mono">{s.email || "—"}</td>
                     <td>{s.phone_number}</td>
                     <td>{s.zip_code}</td>
-                    <td>{s.state || '—'}</td>
+                    <td>{s.state || "—"}</td>
                     <td>
-                      <span className={`ad-pill ${s.banana_consent ? 'is-yes' : 'is-no'}`}>
-                        {s.banana_consent ? 'Yes' : 'No'}
+                      <span
+                        className={`ad-pill ${s.banana_consent ? "is-yes" : "is-no"}`}
+                      >
+                        {s.banana_consent ? "Yes" : "No"}
                       </span>
                     </td>
                     <td>
                       {s.trusted_form_cert_url ? (
                         <span className="ad-inline">
-                          <span className="ad-mono ad-cert" title={certId(s.trusted_form_cert_url)}>
+                          <span
+                            className="ad-mono ad-cert"
+                            title={certId(s.trusted_form_cert_url)}
+                          >
                             {certId(s.trusted_form_cert_url)}
                           </span>
                           <CopyButton
@@ -430,7 +461,7 @@ function Dashboard({ onUnauthorized }) {
                           />
                         </span>
                       ) : (
-                        '—'
+                        "—"
                       )}
                     </td>
                     <td>
@@ -444,12 +475,12 @@ function Dashboard({ onUnauthorized }) {
                           Open form
                         </a>
                       ) : (
-                        '—'
+                        "—"
                       )}
                     </td>
-                    <td className="ad-mono">{s.ip_address || '—'}</td>
-                    <td className="ad-ua" title={s.user_agent || ''}>
-                      {s.user_agent || '—'}
+                    <td className="ad-mono">{s.ip_address || "—"}</td>
+                    <td className="ad-ua" title={s.user_agent || ""}>
+                      {s.user_agent || "—"}
                     </td>
                     <td>{formatUsTime(s.submitted_at)}</td>
                   </tr>
@@ -484,14 +515,14 @@ function Dashboard({ onUnauthorized }) {
         )}
       </section>
     </>
-  )
+  );
 }
 
 function Stat({ label, value }) {
   return (
     <div className="ad-stat">
       <span className="ad-stat-label">{label}</span>
-      <span className="ad-stat-value">{value ?? '—'}</span>
+      <span className="ad-stat-value">{value ?? "—"}</span>
     </div>
-  )
+  );
 }
